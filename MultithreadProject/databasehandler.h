@@ -14,7 +14,7 @@ class DatabaseHandler
 public:
     static QStringList GetItems();
     static QStringList GetOrders();
-    static void UpdateItem(int ID, int quantity);
+    static bool UpdateItem(int ID, int quantity);
 };
 
 #endif // DATABASEHANDLER_H

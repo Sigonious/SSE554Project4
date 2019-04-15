@@ -78,8 +78,9 @@ QStringList DatabaseHandler::GetOrders()
     return results;
 }
 
-void DatabaseHandler::UpdateItem(int ID, int quantity)
+bool DatabaseHandler::UpdateItem(int ID, int quantity)
 {
+    bool success = true;
     QSystemSemaphore qss("dbsemaphore", 1);
     qss.acquire();
 
@@ -95,7 +96,7 @@ void DatabaseHandler::UpdateItem(int ID, int quantity)
     {
         QSqlQuery flim(sqlDb);
         flim.prepare("SELECT * FROM Orders");
-        flim.exec();
+        success = success & flim.exec();
         int numberOfOrders = 0;
         while(flim.next())
         {
@@ -105,14 +106,14 @@ void DatabaseHandler::UpdateItem(int ID, int quantity)
 
         flim.prepare("SELECT AvailableQuantity FROM Item WHERE ItemID=:iid");
         flim.bindValue(":iid", ID);
-        flim.exec();
+        success = success & flim.exec();
         flim.next();
         int currentQuantity = flim.value(0).toInt();
 
         flim.prepare("UPDATE Item SET AvailableQuantity=:quant WHERE ItemID=:iid");
         flim.bindValue(":quant", (currentQuantity - quantity));
         flim.bindValue(":iid", ID);
-        flim.exec();
+        success = success & flim.exec();
 
         flim.prepare("INSERT INTO Orders VALUES (:order,:date)");
         flim.bindValue(":order", numberOfOrders);
@@ -122,19 +123,21 @@ void DatabaseHandler::UpdateItem(int ID, int quantity)
         QString year = QString::number(d.year()).rightJustified(4,'0');
 
         flim.bindValue(":date", QString(year+"-"+month+"-"+day));
-        flim.exec();
+        success = success & flim.exec();
 
         flim.prepare("INSERT INTO OrderDetail(ItemID, OrderID, OrderQuantity) VALUES (:iid, :oid, :oq)");
         flim.bindValue(":iid", ID);
         flim.bindValue(":oid", numberOfOrders);
         flim.bindValue(":oq", quantity);
-        flim.exec();
+        success = success & flim.exec();
     }
     else
     {
         qDebug() << sqlDb.lastError();
+        success = false;
     }
     sqlDb.close();
     QSqlDatabase::removeDatabase("QODBC3");
     qss.release();
+    return success;
 }

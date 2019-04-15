@@ -52,21 +52,35 @@ void ClientThread::receiveData()
         }
         case 1: //Order placed
         {
-            int numberOfItems = receivedData.mid(1, sizeof(int)).toInt();
-            int offset = 1 + sizeof(int);
-            for(int i = 0; i < numberOfItems; i++)
+            try
             {
-                int itemID = receivedData.mid(offset, 10).toInt();
-                offset += 10;
-                int quantity = receivedData.mid(offset, 10).toInt();
-                offset += 10;
-                DatabaseHandler::UpdateItem(itemID, quantity);
+                int numberOfItems = receivedData.mid(1, sizeof(int)).toInt();
+                int offset = 1 + sizeof(int);
+                bool success = true;
+                for(int i = 0; i < numberOfItems; i++)
+                {
+                    int itemID = receivedData.mid(offset, 10).toInt();
+                    offset += 10;
+                    int quantity = receivedData.mid(offset, 10).toInt();
+                    offset += 10;
+                    success = DatabaseHandler::UpdateItem(itemID, quantity);
+                }
+                QStringList qsl = DatabaseHandler::GetOrders();
+                emit orderFinished(qsl);
+                if(success)
+                    socket->write("1");
+                else {
+                    socket->write("2");
+                }
+                socket->waitForBytesWritten();
+                break;
             }
-            QStringList qsl = DatabaseHandler::GetOrders();
-            emit orderFinished(qsl);
-            socket->write("1");
-            socket->waitForBytesWritten();
-            break;
+            catch(std::exception)
+            {
+                socket->write("2");
+                socket->waitForBytesWritten();
+                break;
+            }
         }
     }
 }

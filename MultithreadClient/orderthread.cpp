@@ -72,5 +72,8 @@ void OrderThread::DataReceived()
             qDebug() << "Order was successfully placed.";
             break;
         }
+        case 2:
+            qDebug() << "Order could not be placed.";
+            break;
     }
 }
