@@ -23,7 +23,8 @@ QStringList DatabaseHandler::GetItems()
         {
             try
             {
-                results.push_back(flim.value(0).toString() + "," + flim.value(1).toString() + "," + flim.value(2).toString() + "," + flim.value(3).toString());
+                results.push_back(flim.value(0).toString() + "," + flim.value(1).toString() 
+                                  + "," + flim.value(2).toString() + "," + flim.value(3).toString());
             } catch (std::exception)
             {
                 qDebug() << "Error with sql query.";
