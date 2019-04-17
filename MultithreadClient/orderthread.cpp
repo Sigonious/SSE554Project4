@@ -62,8 +62,10 @@ void OrderThread::DataReceived()
                 currentIndex += 10;
                 float itemPrice = data.mid(currentIndex, 10).replace(" ", "").toFloat();
                 currentIndex += 10;
-                qDebug() << "Adding item: " + QString::number(itemID) + " : " + itemName + " : " + QString(itemQuantity) + " : " + QString::number(itemPrice);
-                emit done(QString::number(itemID) + "\t" + itemName + "\t" +  QString::number(itemQuantity) + "\t" +  QString::number(itemPrice));
+                qDebug() << "Adding item: " + QString::number(itemID) + " : " + itemName + " : " 
+                    + QString(itemQuantity) + " : " + QString::number(itemPrice);
+                emit done(QString::number(itemID) + "\t" + itemName + "\t" +  QString::number(itemQuantity) 
+                          + "\t" +  QString::number(itemPrice));
             }
             break;
         }
